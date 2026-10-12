@@ -652,6 +652,14 @@ body::before {
     }
 
     const maxDaily = Math.max(60, ...dailyTotals.map(d => d.total));
+        const subjectColors = {
+      "国語": "#F3A6C8",
+      "数学": "#A9BDF7",
+      "英語": "#A8DCC5",
+      "理科": "#BDA8F0",
+      "社会": "#F3CE88",
+      "その他": "#B9C5CC"
+    };
     dailyTotals.forEach(d => {
       const col = makeElement("div", "sg-column");
       col.appendChild(makeElement("span", "", d.total ? minutesText(d.total) : "0分"));
@@ -681,6 +689,7 @@ body::before {
       const track = makeElement("div", "sg-track");
       const fill = makeElement("div", "sg-fill");
       fill.style.width = (total / maxSubject * 100) + "%";
+            fill.style.backgroundColor = subjectColors[subject] || "#B9C5CC";
       track.appendChild(fill);
       row.appendChild(track);
       subjectChart.appendChild(row);
