@@ -1,46 +1,308 @@
 
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#f5e6eb">
-<title>Ribbon ♡</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#fff7fa">
+<title>Ribbon ♡ My Planner</title>
 <style>
-body {
-  margin: 0;
-  padding: 30px 20px;
-  background: #fbf5f7;
-  color: #805367;
-  font-family: sans-serif;
-}
-.card {
-  background: white;
-  border: 1px solid #efd9e2;
-  border-radius: 24px;
-  padding: 24px;
-  text-align: center;
-}
-button {
-  background: #c77f98;
-  color: white;
-  border: 0;
-  border-radius: 14px;
-  padding: 12px 20px;
-  font-size: 16px;
-}
+:root{--pink:#d987a5;--deep:#a94f76;--pale:#fff0f5;--white:#fff;--ink:#604753;--muted:#a38b95;--line:#f3dce5}
+*{box-sizing:border-box}
+body{margin:0;background:#fff8fb;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN",sans-serif;font-size:14px;padding-bottom:85px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+header{padding:24px 19px 18px;background:linear-gradient(145deg,#ffeaf2,#fff8fb 75%);border-bottom:1px solid var(--line)}
+.brand{font-size:13px;color:var(--deep);letter-spacing:2px}
+h1{font-family:Georgia,serif;font-size:29px;margin:8px 0 4px;color:var(--deep)}
+header p{margin:0;color:var(--muted);font-size:12px}
+.date-line{margin-top:17px;font-size:13px}
+main{max-width:680px;margin:auto;padding:15px}
+.panel{background:white;border:1px solid var(--line);border-radius:19px;padding:16px;margin-bottom:14px;box-shadow:0 4px 14px #dba2b211}
+h2{font-size:16px;margin:0 0 13px;color:var(--deep)}
+h3{font-size:13px;margin:12px 0 8px}
+.sub{font-size:12px;color:var(--muted)}
+.row{display:flex;align-items:center;gap:8px}
+.between{justify-content:space-between}
+input,select,textarea{width:100%;background:#fffafd;border:1px solid var(--line);border-radius:11px;padding:11px;outline-color:var(--pink);min-width:0}
+textarea{resize:vertical}
+button.primary{border:0;background:var(--pink);color:white;border-radius:12px;padding:11px 15px;font-weight:600}
+button.soft{border:1px solid var(--line);background:var(--pale);border-radius:11px;padding:9px 12px;color:var(--deep)}
+button.danger{border:0;background:#fff0f0;color:#ba6060;border-radius:9px;padding:7px 9px}
+.stack{display:grid;gap:9px}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.stat{background:var(--pale);border-radius:14px;padding:13px}
+.stat b{display:block;font-size:22px;color:var(--deep);margin-top:5px}
+.bigtime{font-size:36px;font-weight:650;text-align:center;color:var(--deep);font-variant-numeric:tabular-nums;margin:15px 0}
+.center{text-align:center}
+.formrow{display:flex;gap:8px;margin-bottom:9px}
+.formrow>*{flex:1}
+.item{display:flex;align-items:center;gap:9px;padding:10px 0;border-bottom:1px solid #f8eaf0}
+.item:last-child{border-bottom:0}
+.item .grow{flex:1;min-width:0;overflow-wrap:anywhere}
+.item small{display:block;color:var(--muted);margin-top:3px}
+.item.done .grow{text-decoration:line-through;color:#bcaab2}
+.item input[type=checkbox]{width:18px;height:18px;accent-color:var(--pink);flex:0 0 auto}
+.pill{background:var(--pale);border-radius:99px;color:var(--deep);padding:5px 9px;font-size:11px}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:space-around;background:#fffdfefa;border-top:1px solid var(--line);padding:8px 3px calc(8px + env(safe-area-inset-bottom));z-index:5}
+nav button{border:0;background:transparent;color:var(--muted);font-size:10px;padding:5px 2px;flex:1}
+nav button span{display:block;font-size:20px;margin-bottom:3px}
+nav button.active{color:var(--deep);font-weight:700}
+.page{display:none}.page.active{display:block}
+.empty{text-align:center;color:var(--muted);padding:18px 4px}
+.progress{height:8px;background:#f9e8ef;border-radius:20px;overflow:hidden;margin:10px 0}
+.progress div{height:100%;background:var(--pink);border-radius:20px;width:0}
+.habitgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.habit{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fffafd;display:flex;align-items:center;gap:8px}
+.habit input{width:18px;height:18px;accent-color:var(--pink)}
+.calendarbox{border:1px solid var(--line);border-radius:13px;padding:12px}
+@media(min-width:540px){.stats{grid-template-columns:repeat(4,minmax(0,1fr))}}
 </style>
 </head>
 <body>
-<div class="card">
-  <div style="font-size:40px">🎀</div>
-  <h1>Ribbon ♡</h1>
-  <p>わたしだけの毎日ノート</p>
-  <p id="message">今日も一歩ずつ進もう！</p>
-  <button onclick="document.getElementById('message').textContent='今日もがんばったね！♡'">
-    タップしてね ♡
-  </button>
-</div>
+<header>
+  <div class="brand">🎀 RIBBON ♡ MY PLANNER</div>
+  <h1>わたしだけの毎日ノート</h1>
+  <p>little steps, lovely days ♡</p>
+  <div class="date-line" id="todayText"></div>
+</header>
+
+<main>
+<section class="page active" id="home">
+  <div class="panel">
+    <h2>♡ 今日のダッシュボード</h2>
+    <div class="stats">
+      <div class="stat"><span>今日の勉強</span><b id="homeStudy">0分</b></div>
+      <div class="stat"><span>ToDo達成</span><b id="homeTasks">0 / 0</b></div>
+      <div class="stat"><span>習慣チェック</span><b id="homeHabits">0 / 0</b></div>
+      <div class="stat"><span>今月の勉強</span><b id="monthStudy">0時間</b></div>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>♡ 今日のひとこと</h2>
+    <p id="quote">少しずつでも、進んでいるよ 🎀</p>
+    <button class="soft" onclick="newQuote()">別のひとこと ♡</button>
+  </div>
+  <div class="panel">
+    <h2>♡ 今日のToDo</h2>
+    <div id="homeTaskList"></div>
+    <button class="primary" onclick="showPage('tasks')">ToDoを確認する →</button>
+  </div>
+  <div class="panel">
+    <h2>♡ 今日の予定</h2>
+    <div id="homeEvents"></div>
+    <button class="soft" onclick="showPage('calendar')">予定を確認する →</button>
+  </div>
+</section>
+
+<section class="page" id="study">
+  <div class="panel">
+    <h2>♡ 勉強時間を記録</h2>
+    <label class="sub" for="subject">教科を選んでね</label>
+    <select id="subject">
+      <option>数学</option><option>英語</option><option>国語</option>
+      <option>理科</option><option>社会</option><option>その他</option>
+    </select>
+    <div class="bigtime" id="timer">00:00:00</div>
+    <div class="row" style="justify-content:center;flex-wrap:wrap">
+      <button class="primary" id="timerButton" onclick="toggleTimer()">▶ スタート</button>
+      <button class="soft" onclick="resetTimer()">リセット</button>
+    </div>
+    <p class="sub center" id="timerNote">スタートすると勉強時間を測れるよ ♡</p>
+  </div>
+  <div class="panel">
+    <h2>♡ 今日の教科別記録</h2>
+    <div id="subjectStats"></div>
+  </div>
+  <div class="panel">
+    <h2>♡ 手動で記録を追加</h2>
+    <p class="sub">ストップウォッチを使わなかった日も記録できるよ。</p>
+    <div class="formrow">
+      <select id="manualSubject"><option>数学</option><option>英語</option><option>国語</option><option>理科</option><option>社会</option><option>その他</option></select>
+      <input id="manualMinutes" type="number" min="1" max="1440" placeholder="分">
+    </div>
+    <button class="primary" onclick="addManualStudy()">記録する ♡</button>
+    <h3>最近の記録</h3>
+    <div id="studyHistory"></div>
+  </div>
+</section>
+
+<section class="page" id="tasks">
+  <div class="panel">
+    <h2>♡ やることリスト</h2>
+    <div class="formrow">
+      <input id="taskInput" placeholder="例：理科の問題集を進める">
+      <button class="primary" onclick="addTask()">追加</button>
+    </div>
+    <div id="taskList"></div>
+  </div>
+</section>
+
+<section class="page" id="habits">
+  <div class="panel">
+    <h2>♡ 習慣チェック</h2>
+    <p class="sub">できた習慣にチェックを入れよう！日付ごとに保存されるよ。</p>
+    <div id="habitList" class="stack"></div>
+    <div class="formrow" style="margin-top:13px">
+      <input id="habitInput" placeholder="新しい習慣を追加">
+      <button class="primary" onclick="addHabit()">追加</button>
+    </div>
+    <button class="soft" onclick="resetHabitsToday()">今日のチェックを外す</button>
+  </div>
+</section>
+
+<section class="page" id="calendar">
+  <div class="panel">
+    <h2>♡ カレンダー・予定</h2>
+    <label class="sub" for="eventDate">日付</label>
+    <input id="eventDate" type="date">
+    <div class="formrow" style="margin-top:9px">
+      <input id="eventTime" type="time" aria-label="予定の時刻">
+      <input id="eventTitle" placeholder="予定・メモ">
+    </div>
+    <button class="primary" onclick="addEvent()">予定を保存 ♡</button>
+  </div>
+  <div class="panel">
+    <h2>♡ 選んだ日の予定</h2>
+    <div id="eventList"></div>
+  </div>
+  <div class="panel">
+    <h2>♡ これからの予定</h2>
+    <div id="upcomingEvents"></div>
+  </div>
+</section>
+
+<section class="page" id="goals">
+  <div class="panel">
+    <h2>♡ わたしの目標</h2>
+    <input id="goalInput" placeholder="例：毎日少しずつ理科を復習する">
+    <button class="primary" style="margin-top:9px" onclick="saveGoal()">目標を保存 ♡</button>
+    <p id="goalDisplay"></p>
+  </div>
+  <div class="panel">
+    <h2>♡ ごほうびリスト</h2>
+    <div class="formrow">
+      <input id="rewardInput" placeholder="例：アニメを1話見る">
+      <button class="primary" onclick="addReward()">追加</button>
+    </div>
+    <div id="rewardList"></div>
+  </div>
+  <div class="panel">
+    <h2>♡ データについて</h2>
+    <p class="sub">記録はこのブラウザ内に保存されるよ。ブラウザのデータを消すと記録も消える場合があるので注意してね。</p>
+    <button class="soft" onclick="exportData()">記録をバックアップする</button>
+    <button class="soft" onclick="document.getElementById('importFile').click()">バックアップを読み込む</button>
+    <input hidden type="file" id="importFile" accept="application/json" onchange="importData(event)">
+    <p class="sub">バックアップファイルは自分で安全に保管してね。</p>
+  </div>
+</section>
+</main>
+
+<nav>
+  <button class="active" data-page="home" onclick="showPage('home')"><span>⌂</span>ホーム</button>
+  <button data-page="study" onclick="showPage('study')"><span>♡</span>勉強記録</button>
+  <button data-page="tasks" onclick="showPage('tasks')"><span>☑</span>ToDo</button>
+  <button data-page="habits" onclick="showPage('habits')"><span>✿</span>習慣</button>
+  <button data-page="calendar" onclick="showPage('calendar')"><span>▦</span>予定</button>
+  <button data-page="goals" onclick="showPage('goals')"><span>🎀</span>目標</button>
+</nav>
+
+<script>
+const KEY="ribbonPlannerV1";
+const $=id=>document.getElementById(id);
+const today=()=>new Date().toLocaleDateString("sv-SE");
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const defaults=()=>({
+ tasks:[],habits:["机を片づける","勉強を始める","明日の準備","早めに寝る"],
+ habitChecks:{},events:[],study:[],goal:"",rewards:[],rewardChecks:{}
+});
+let data;
+try{data={...defaults(),...JSON.parse(localStorage.getItem(KEY)||"{}")}}catch(e){data=defaults()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){alert("保存できなかったよ。端末の空き容量を確認してね。")}}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function fmtDate(d){if(!d)return "";return d.replaceAll("-","/")}
+function minutesFor(date){return data.study.filter(x=>x.date===date).reduce((s,x)=>s+x.minutes,0)}
+function showPage(id){
+ document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id===id));
+ document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===id));
+ render();window.scrollTo(0,0)
+}
+function newQuote(){
+ const q=["今日の小さな一歩も、未来の自分へのプレゼント 🎀","完璧じゃなくていい。続けることがすてき ♡","休憩も大事な予定のひとつだよ 🌷","昨日よりひとつ進めたら花まる！","自分のペースで大丈夫 ♡"];
+ $("quote").textContent=q[Math.floor(Math.random()*q.length)]
+}
+let running=false,startAt=0,elapsed=0,interval=null;
+function displayTimer(){
+ let s=Math.floor((elapsed+(running?Date.now()-startAt:0))/1000);
+ $("timer").textContent=[Math.floor(s/3600),Math.floor(s%3600/60),s%60].map(n=>String(n).padStart(2,"0")).join(":")
+}
+function toggleTimer(){
+ if(!running){running=true;startAt=Date.now();$("timerButton").textContent="■ ストップ";$("timerNote").textContent="集中タイム！無理せずがんばろう ♡";interval=setInterval(displayTimer,500)}
+ else{
+  elapsed+=Date.now()-startAt;running=false;clearInterval(interval);displayTimer();
+  const mins=Math.floor(elapsed/60000);
+  if(mins>0){data.study.push({id:uid(),date:today(),subject:$("subject").value,minutes:mins});save();elapsed=0;render();$("timerNote").textContent=mins+"分を記録したよ！おつかれさま ♡"}
+  else $("timerNote").textContent="1分未満だったので記録していないよ。もう一度スタートできるよ ♡";
+  $("timerButton").textContent="▶ スタート"
+ }
+}
+function resetTimer(){if(running){running=false;clearInterval(interval)}elapsed=0;displayTimer();$("timerButton").textContent="▶ スタート";$("timerNote").textContent="タイマーをリセットしたよ ♡"}
+function addManualStudy(){
+ let m=Number($("manualMinutes").value);if(!Number.isFinite(m)||m<1||m>1440){alert("1〜1440分で入力してね");return}
+ data.study.push({id:uid(),date:today(),subject:$("manualSubject").value,minutes:Math.round(m)});save();$("manualMinutes").value="";render()
+}
+function deleteStudy(id){data.study=data.study.filter(x=>x.id!==id);save();render()}
+function addTask(){let t=$("taskInput").value.trim();if(!t)return;data.tasks.push({id:uid(),text:t,done:false,date:today()});$("taskInput").value="";save();render()}
+function toggleTask(id){let t=data.tasks.find(x=>x.id===id);if(t)t.done=!t.done;save();render()}
+function deleteTask(id){data.tasks=data.tasks.filter(x=>x.id!==id);save();render()}
+function addHabit(){let h=$("habitInput").value.trim();if(!h)return;if(data.habits.includes(h)){alert("その習慣はもうあるよ ♡");return}data.habits.push(h);$("habitInput").value="";save();render()}
+function toggleHabit(h){let d=data.habitChecks[today()]||[];data.habitChecks[today()]=d.includes(h)?d.filter(x=>x!==h):[...d,h];save();render()}
+function resetHabitsToday(){data.habitChecks[today()]=[];save();render()}
+function addEvent(){let date=$("eventDate").value,title=$("eventTitle").value.trim(),time=$("eventTime").value;if(!date||!title){alert("日付と予定を入力してね ♡");return}data.events.push({id:uid(),date,time,title});$("eventTitle").value="";save();render()}
+function deleteEvent(id){data.events=data.events.filter(x=>x.id!==id);save();render()}
+function saveGoal(){data.goal=$("goalInput").value.trim();save();render();alert("目標を保存したよ ♡")}
+function addReward(){let r=$("rewardInput").value.trim();if(!r)return;data.rewards.push({id:uid(),text:r});$("rewardInput").value="";save();render()}
+function toggleReward(id){data.rewardChecks[id]=!data.rewardChecks[id];save();render()}
+function deleteReward(id){data.rewards=data.rewards.filter(x=>x.id!==id);delete data.rewardChecks[id];save();render()}
+function exportData(){
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+ const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="ribbon-planner-backup.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)
+}
+function importData(e){
+ const f=e.target.files[0];if(!f)return;
+ const r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x||!Array.isArray(x.tasks)||!Array.isArray(x.study))throw Error();data={...defaults(),...x};save();render();alert("バックアップを読み込んだよ ♡")}catch(err){alert("このバックアップは読み込めなかったよ")}};
+ r.readAsText(f);e.target.value=""
+}
+function render(){
+ $("todayText").textContent=new Date().toLocaleDateString("ja-JP",{year:"numeric",month:"long",day:"numeric",weekday:"long"});
+ if(!$("eventDate").value)$("eventDate").value=today();
+ $("homeStudy").textContent=minutesFor(today())+"分";
+ const month=today().slice(0,7),monthMins=data.study.filter(x=>x.date.startsWith(month)).reduce((s,x)=>s+x.minutes,0);
+ $("monthStudy").textContent=(monthMins/60).toFixed(1)+"時間";
+ $("homeTasks").textContent=data.tasks.filter(x=>x.done).length+" / "+data.tasks.length;
+ const checks=data.habitChecks[today()]||[];$("homeHabits").textContent=checks.length+" / "+data.habits.length;
+ const tasks=data.tasks.filter(x=>x.date===today());
+ $("homeTaskList").innerHTML=tasks.length?tasks.slice(0,5).map(t=>`<div class="item ${t.done?"done":""}"><input type="checkbox" ${t.done?"checked":""} onchange="toggleTask('${t.id}')"><div class="grow">${esc(t.text)}</div></div>`).join(""):'<div class="empty">今日のToDoを追加してね ♡</div>';
+ const todaysEvents=data.events.filter(x=>x.date===today()).sort((a,b)=>(a.time||"").localeCompare(b.time||""));
+ $("homeEvents").innerHTML=todaysEvents.length?todaysEvents.map(e=>`<div class="item"><div class="grow">${esc(e.title)}<small>${esc(e.time||"時間未設定")}</small></div></div>`).join(""):'<div class="empty">今日の予定はまだないよ 🌷</div>';
+ $("taskList").innerHTML=data.tasks.length?data.tasks.slice().reverse().map(t=>`<div class="item ${t.done?"done":""}"><input type="checkbox" ${t.done?"checked":""} onchange="toggleTask('${t.id}')"><div class="grow">${esc(t.text)}<small>追加日：${fmtDate(t.date)}</small></div><button class="danger" onclick="deleteTask('${t.id}')">削除</button></div>`).join(""):'<div class="empty">やることを追加してね ♡</div>';
+ $("habitList").innerHTML=data.habits.map(h=>`<label class="habit"><input type="checkbox" ${(checks.includes(h)?"checked":"")} onchange="toggleHabit(${JSON.stringify(h).replaceAll("'","&#39;")})"><span>${esc(h)}</span></label>`).join("");
+ const selected=$("eventDate").value||today(),selectedEvents=data.events.filter(x=>x.date===selected).sort((a,b)=>(a.time||"").localeCompare(b.time||""));
+ $("eventList").innerHTML=selectedEvents.length?selectedEvents.map(e=>`<div class="item"><div class="grow">${esc(e.title)}<small>${esc(e.time||"時間未設定")} · ${fmtDate(e.date)}</small></div><button class="danger" onclick="deleteEvent('${e.id}')">削除</button></div>`).join(""):'<div class="empty">この日の予定はまだないよ ♡</div>';
+ const upcoming=data.events.filter(x=>x.date>=today()).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).slice(0,10);
+ $("upcomingEvents").innerHTML=upcoming.length?upcoming.map(e=>`<div class="item"><div class="grow">${esc(e.title)}<small>${fmtDate(e.date)} ${esc(e.time||"")}</small></div><button class="danger" onclick="deleteEvent('${e.id}')">削除</button></div>`).join(""):'<div class="empty">これからの予定はないよ ♡</div>';
+ const subjects=["数学","英語","国語","理科","社会","その他"];
+ $("subjectStats").innerHTML=subjects.map(s=>{let m=data.study.filter(x=>x.date===today()&&x.subject===s).reduce((a,x)=>a+x.minutes,0);return `<div class="item"><div class="grow">${s}</div><span class="pill">${m}分</span></div>`}).join("");
+ $("studyHistory").innerHTML=data.study.slice().reverse().slice(0,12).map(x=>`<div class="item"><div class="grow">${esc(x.subject)} · ${x.minutes}分<small>${fmtDate(x.date)}</small></div><button class="danger" onclick="deleteStudy('${x.id}')">削除</button></div>`).join("")||'<div class="empty">まだ記録がないよ ♡</div>';
+ $("goalInput").value=data.goal||"";
+ $("goalDisplay").textContent=data.goal?"目標： "+data.goal:"目標を決めるときは、ここに書いてね ♡";
+ $("rewardList").innerHTML=data.rewards.length?data.rewards.map(r=>`<div class="item ${data.rewardChecks[r.id]?"done":""}"><input type="checkbox" ${data.rewardChecks[r.id]?"checked":""} onchange="toggleReward('${r.id}')"><div class="grow">${esc(r.text)}<small>${data.rewardChecks[r.id]?"達成したね！おめでとう ♡":"楽しみを目標にしよう"}</small></div><button class="danger" onclick="deleteReward('${r.id}')">削除</button></div>`).join(""):'<div class="empty">楽しみなごほうびを追加しよう 🎀</div>';
+}
+$("eventDate").addEventListener("change",render);
+$("taskInput").addEventListener("keydown",e=>{if(e.key==="Enter")addTask()});
+$("habitInput").addEventListener("keydown",e=>{if(e.key==="Enter")addHabit()});
+$("rewardInput").addEventListener("keydown",e=>{if(e.key==="Enter")addReward()});
+render();
+</script>
 </body>
 </html>
