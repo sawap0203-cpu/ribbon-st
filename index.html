@@ -304,5 +304,141 @@ $("habitInput").addEventListener("keydown",e=>{if(e.key==="Enter")addHabit()});
 $("rewardInput").addEventListener("keydown",e=>{if(e.key==="Enter")addReward()});
 render();
 </script>
+<style>
+/* Ribbon ♡ Theme */
+body {
+  background-color: var(--rb-bg, #fff7fb) !important;
+  color: var(--rb-text, #56384a);
+}
+
+.item, .habit, .card, .panel, section {
+  border-color: var(--rb-border, #f3c6dc) !important;
+}
+
+.item, .habit, .card, .panel {
+  background-color: var(--rb-card, #ffffff);
+  color: var(--rb-text, #56384a);
+}
+
+button:not(#ribbonThemeToggle):not(.ribbon-theme-choice) {
+  border-color: var(--rb-border, #f3c6dc);
+}
+
+#ribbonThemeToggle {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  z-index: 9998;
+  border: 1px solid var(--rb-border, #f3c6dc);
+  border-radius: 999px;
+  padding: 12px 16px;
+  background: var(--rb-accent, #e879ad);
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 4px 12px #0002;
+}
+
+#ribbonThemePanel {
+  display: none;
+  position: fixed;
+  right: 12px;
+  bottom: 68px;
+  z-index: 9999;
+  width: 220px;
+  padding: 16px;
+  border: 1px solid var(--rb-border, #f3c6dc);
+  border-radius: 18px;
+  background: var(--rb-card, white);
+  color: var(--rb-text, #56384a);
+  box-shadow: 0 5px 20px #0002;
+}
+
+#ribbonThemePanel.open {
+  display: block;
+}
+
+.ribbon-theme-choice {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  text-align: left;
+  font-size: 14px;
+}
+</style>
+
+<button id="ribbonThemeToggle" type="button">🎀 着せ替え</button>
+
+<div id="ribbonThemePanel">
+  <strong>🎀 テーマを選んでね</strong>
+  <button class="ribbon-theme-choice" data-theme="pink" style="background:#fce7f3;color:#70415a">🎀 ピンク</button>
+  <button class="ribbon-theme-choice" data-theme="lavender" style="background:#eee7ff;color:#594582">🪻 ラベンダー</button>
+  <button class="ribbon-theme-choice" data-theme="mint" style="background:#ddf6e9;color:#326b55">🍀 ミント</button>
+  <button class="ribbon-theme-choice" data-theme="cream" style="background:#fff0d5;color:#785b31">🤍 クリーム</button>
+</div>
+
+<script>
+(function () {
+  const themes = {
+    pink: {
+      bg: "#fff7fb", card: "#ffffff", text: "#56384a",
+      accent: "#e879ad", soft: "#fce7f3", border: "#f3c6dc"
+    },
+    lavender: {
+      bg: "#f8f5ff", card: "#ffffff", text: "#493b65",
+      accent: "#a58bdf", soft: "#eee7ff", border: "#d9ccfa"
+    },
+    mint: {
+      bg: "#f1fff7", card: "#ffffff", text: "#315b49",
+      accent: "#69bd98", soft: "#ddf6e9", border: "#bce7d0"
+    },
+    cream: {
+      bg: "#fffaf0", card: "#ffffff", text: "#665139",
+      accent: "#d5ae70", soft: "#fff0d5", border: "#ecd9b5"
+    }
+  };
+
+  function applyTheme(name) {
+    const theme = themes[name] || themes.pink;
+    Object.keys(theme).forEach(function (key) {
+      document.documentElement.style.setProperty("--rb-" + key, theme[key]);
+    });
+
+    document.querySelectorAll(".ribbon-theme-choice").forEach(function (button) {
+      button.setAttribute(
+        "aria-pressed",
+        String(button.dataset.theme === name)
+      );
+    });
+
+    try {
+      localStorage.setItem("ribbonTheme", name);
+    } catch (error) {}
+  }
+
+  const toggle = document.getElementById("ribbonThemeToggle");
+  const panel = document.getElementById("ribbonThemePanel");
+
+  toggle.addEventListener("click", function () {
+    panel.classList.toggle("open");
+  });
+
+  document.querySelectorAll(".ribbon-theme-choice").forEach(function (button) {
+    button.addEventListener("click", function () {
+      applyTheme(button.dataset.theme);
+      panel.classList.remove("open");
+    });
+  });
+
+  let savedTheme = "pink";
+  try {
+    savedTheme = localStorage.getItem("ribbonTheme") || "pink";
+  } catch (error) {}
+
+  applyTheme(savedTheme);
+})();
+</script>
 </body>
 </html>
