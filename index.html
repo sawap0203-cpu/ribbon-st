@@ -660,16 +660,47 @@ body::before {
       "社会": "#F3CE88",
       "その他": "#B9C5CC"
     };
+ 
     dailyTotals.forEach(d => {
       const col = makeElement("div", "sg-column");
       col.appendChild(makeElement("span", "", d.total ? minutesText(d.total) : "0分"));
+
       const bar = makeElement("div", "sg-bar");
       bar.style.height = (d.total / maxDaily * 100) + "%";
+      bar.style.display = "flex";
+      bar.style.flexDirection = "column-reverse";
+      bar.style.overflow = "hidden";
       bar.title = d.date + "：" + minutesText(d.total);
+
+      if (d.total > 0) {
+        const subjectTotalsForDay = {};
+        subjects.forEach(subject => subjectTotalsForDay[subject] = 0);
+
+        weekRecords.forEach(r => {
+          if (r.date === d.date && subjects.includes(r.subject)) {
+            subjectTotalsForDay[r.subject] += r.minutes;
+          }
+        });
+
+        subjects.forEach(subject => {
+          const minutes = subjectTotalsForDay[subject];
+          if (minutes > 0) {
+            const segment = makeElement("div", "");
+            segment.style.height = (minutes / d.total * 100) + "%";
+            segment.style.backgroundColor = subjectColors[subject] || "#B9C5CC";
+            segment.style.width = "100%";
+            segment.style.flexShrink = "0";
+            segment.title = subject + "：" + minutesText(minutes);
+            bar.appendChild(segment);
+          }
+        });
+      }
+
       col.appendChild(bar);
       col.appendChild(makeElement("span", "", ["日","月","火","水","木","金","土"][d.day.getDay()]));
       weekChart.appendChild(col);
     });
+
 
     const subjectChart = document.getElementById("sg-subject-chart");
     subjectChart.replaceChildren();
