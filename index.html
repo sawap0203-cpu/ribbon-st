@@ -728,12 +728,87 @@ body::before {
 
     const list = document.getElementById("sg-records");
     list.replaceChildren();
+   
     records.slice().reverse().slice(0, 20).forEach(r => {
-      const item = makeElement(
-        "li", "", r.date + "｜" + r.subject + "｜" + minutesText(r.minutes)
+      const item = makeElement("li", "");
+      item.style.marginBottom = "10px";
+
+      const text = makeElement(
+        "span", "", r.date + "｜" + r.subject + "｜" + minutesText(r.minutes)
       );
+      item.appendChild(text);
+
+      const edit = makeElement("button", "", "✏️ 編集");
+      edit.type = "button";
+      edit.style.marginLeft = "6px";
+      edit.addEventListener("click", function () {
+        const newDate = prompt("日付を入力してね（例：2026-10-12）", r.date);
+        if (newDate === null) return;
+
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(newDate) ||
+            Number.isNaN(Date.parse(newDate))) {
+          alert("日付は 2026-10-12 の形式で入力してね");
+          return;
+        }
+
+        const newSubject = prompt(
+          "教科を入力してね（国語・数学・英語・理科・社会・その他）",
+          r.subject
+        );
+        if (newSubject === null) return;
+
+        if (!subjects.includes(newSubject)) {
+          alert("教科名を正しく入力してね");
+          return;
+        }
+
+        const newMinutes = prompt("勉強時間を分で入力してね（1〜1440）", String(r.minutes));
+        if (newMinutes === null) return;
+
+        const minutes = Number(newMinutes);
+        if (!Number.isInteger(minutes) || minutes < 1 || minutes > 1440) {
+          alert("勉強時間は1〜1440分で入力してね");
+          return;
+        }
+
+        const old = { date: r.date, subject: r.subject, minutes: r.minutes };
+        r.date = newDate;
+        r.subject = newSubject;
+        r.minutes = minutes;
+
+        if (!save()) {
+          Object.assign(r, old);
+          return;
+        }
+
+        message.textContent = "記録を編集したよ！🎀";
+        render();
+      });
+
+      const del = makeElement("button", "", "🗑️ 削除");
+      del.type = "button";
+      del.style.marginLeft = "6px";
+      del.addEventListener("click", function () {
+        if (!confirm("この勉強記録を削除する？")) return;
+
+        const index = records.indexOf(r);
+        if (index === -1) return;
+
+        records.splice(index, 1);
+        if (!save()) {
+          records.splice(index, 0, r);
+          return;
+        }
+
+        message.textContent = "記録を削除したよ！";
+        render();
+      });
+
+      item.appendChild(edit);
+      item.appendChild(del);
       list.appendChild(item);
     });
+
     if (!records.length) {
       list.appendChild(makeElement("li", "", "記録はまだないよ ♡"));
     }
