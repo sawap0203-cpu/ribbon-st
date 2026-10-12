@@ -456,5 +456,273 @@ body::before {
   box-shadow: 0 4px 12px rgba(220, 130, 175, 0.12);
 }
 </style>
+
+<!-- 🎀 Study Graphs -->
+<style>
+.study-graphs {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 16px;
+  border-radius: 20px;
+  background: var(--rb-soft, #fff0f6);
+  color: var(--rb-text, #56384a);
+  font-family: sans-serif;
+}
+.study-graphs h2,
+.study-graphs h3 {
+  text-align: center;
+}
+.study-graphs input,
+.study-graphs select,
+.study-graphs button {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  border: 1px solid #edc5d9;
+  border-radius: 10px;
+  font-size: 16px;
+}
+.study-graphs button {
+  background: #e9a8cc;
+  color: #56384a;
+  font-weight: bold;
+}
+.sg-chart {
+  display: flex;
+  align-items: end;
+  gap: 8px;
+  height: 150px;
+  padding: 12px 4px 0;
+  border-bottom: 1px solid #d9b8ca;
+}
+.sg-column {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+}
+.sg-bar {
+  width: 75%;
+  min-height: 2px;
+  background: #e9a8cc;
+  border-radius: 7px 7px 0 0;
+}
+.sg-subject-row {
+  margin: 12px 0;
+  font-size: 13px;
+}
+.sg-track {
+  height: 14px;
+  margin-top: 4px;
+  border-radius: 8px;
+  background: #f5dce9;
+  overflow: hidden;
+}
+.sg-fill {
+  height: 100%;
+  background: #d98bb7;
+  border-radius: 8px;
+}
+#sg-records {
+  padding-left: 20px;
+  font-size: 14px;
+}
+</style>
+
+<section class="study-graphs" id="studyGraphs">
+  <h2>🎀 Study Record 🎀</h2>
+  <p>今日の勉強を記録しよう ♡</p>
+
+  <label for="sg-date">日付</label>
+  <input type="date" id="sg-date">
+
+  <label for="sg-subject">教科</label>
+  <select id="sg-subject">
+    <option>国語</option>
+    <option>数学</option>
+    <option>英語</option>
+    <option>理科</option>
+    <option>社会</option>
+    <option>その他</option>
+  </select>
+
+  <label for="sg-minutes">勉強時間（分）</label>
+  <input type="number" id="sg-minutes"
+         min="1" max="1440" placeholder="例：30">
+
+  <button type="button" id="sg-add">記録する ♡</button>
+  <p id="sg-message" aria-live="polite"></p>
+
+  <h3>📊 週間グラフ</h3>
+  <p id="sg-week-total">合計：0時間</p>
+  <div class="sg-chart" id="sg-week-chart"></div>
+
+  <h3>📚 教科別グラフ</h3>
+  <div id="sg-subject-chart"></div>
+
+  <h3>📝 勉強記録</h3>
+  <ul id="sg-records"></ul>
+</section>
+
+<script>
+(function () {
+  const dateInput = document.getElementById("sg-date");
+  const subjectInput = document.getElementById("sg-subject");
+  const minutesInput = document.getElementById("sg-minutes");
+  const message = document.getElementById("sg-message");
+  const storageKey = "ribbonStudyGraphRecordsV1";
+  const subjects = ["国語", "数学", "英語", "理科", "社会", "その他"];
+
+  function localDate(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return y + "-" + m + "-" + d;
+  }
+
+  dateInput.value = localDate(new Date());
+
+  let records = [];
+  try {
+    records = JSON.parse(localStorage.getItem(storageKey) || "[]");
+    if (!Array.isArray(records)) records = [];
+  } catch (e) {
+    records = [];
+  }
+
+  function save() {
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(records));
+      return true;
+    } catch (e) {
+      message.textContent = "保存できませんでした。ブラウザの設定を確認してね。";
+      return false;
+    }
+  }
+
+  function minutesText(minutes) {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours && mins) return hours + "時間" + mins + "分";
+    if (hours) return hours + "時間";
+    return mins + "分";
+  }
+
+  function makeElement(tag, className, text) {
+    const el = document.createElement(tag);
+    if (className) el.className = className;
+    if (text !== undefined) el.textContent = text;
+    return el;
+  }
+
+  function render() {
+    const today = new Date();
+    const weekStart = new Date(
+      today.getFullYear(), today.getMonth(), today.getDate() - 6
+    );
+    const weekStartText = localDate(weekStart);
+    const todayText = localDate(today);
+
+    const weekRecords = records.filter(
+      r => r.date >= weekStartText && r.date <= todayText
+    );
+    const weekTotal = weekRecords.reduce((sum, r) => sum + r.minutes, 0);
+    document.getElementById("sg-week-total").textContent =
+      "直近7日間の合計：" + minutesText(weekTotal);
+
+    const weekChart = document.getElementById("sg-week-chart");
+    weekChart.replaceChildren();
+
+    const dailyTotals = [];
+    for (let i = 0; i < 7; i++) {
+      const day = new Date(
+        weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + i
+      );
+      const date = localDate(day);
+      const total = weekRecords
+        .filter(r => r.date === date)
+        .reduce((sum, r) => sum + r.minutes, 0);
+      dailyTotals.push({ date, day, total });
+    }
+
+    const maxDaily = Math.max(60, ...dailyTotals.map(d => d.total));
+    dailyTotals.forEach(d => {
+      const col = makeElement("div", "sg-column");
+      col.appendChild(makeElement("span", "", d.total ? minutesText(d.total) : "0分"));
+      const bar = makeElement("div", "sg-bar");
+      bar.style.height = (d.total / maxDaily * 100) + "%";
+      bar.title = d.date + "：" + minutesText(d.total);
+      col.appendChild(bar);
+      col.appendChild(makeElement("span", "", ["日","月","火","水","木","金","土"][d.day.getDay()]));
+      weekChart.appendChild(col);
+    });
+
+    const subjectChart = document.getElementById("sg-subject-chart");
+    subjectChart.replaceChildren();
+    const subjectTotals = {};
+    subjects.forEach(s => subjectTotals[s] = 0);
+    weekRecords.forEach(r => {
+      if (subjects.includes(r.subject)) subjectTotals[r.subject] += r.minutes;
+    });
+    const maxSubject = Math.max(60, ...Object.values(subjectTotals));
+
+    subjects.forEach(subject => {
+      const row = makeElement("div", "sg-subject-row");
+      const total = subjectTotals[subject];
+      row.appendChild(makeElement(
+        "div", "", subject + "： " + minutesText(total)
+      ));
+      const track = makeElement("div", "sg-track");
+      const fill = makeElement("div", "sg-fill");
+      fill.style.width = (total / maxSubject * 100) + "%";
+      track.appendChild(fill);
+      row.appendChild(track);
+      subjectChart.appendChild(row);
+    });
+
+    const list = document.getElementById("sg-records");
+    list.replaceChildren();
+    records.slice().reverse().slice(0, 20).forEach(r => {
+      const item = makeElement(
+        "li", "", r.date + "｜" + r.subject + "｜" + minutesText(r.minutes)
+      );
+      list.appendChild(item);
+    });
+    if (!records.length) {
+      list.appendChild(makeElement("li", "", "記録はまだないよ ♡"));
+    }
+  }
+
+  document.getElementById("sg-add").addEventListener("click", function () {
+    const date = dateInput.value;
+    const subject = subjectInput.value;
+    const minutes = Number(minutesInput.value);
+
+    if (!date || !subjects.includes(subject) ||
+        !Number.isInteger(minutes) || minutes < 1 || minutes > 1440) {
+      message.textContent = "日付・教科・勉強時間を正しく入力してね。";
+      return;
+    }
+
+    records.push({ date, subject, minutes });
+    if (!save()) {
+      records.pop();
+      return;
+    }
+
+    minutesInput.value = "";
+    message.textContent = "記録できたよ！🎀";
+    render();
+  });
+
+  render();
+})();
+</script>
 </body>
 </html>
