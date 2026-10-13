@@ -839,5 +839,46 @@ body::before {
   render();
 })();
 </script>
+
+<!-- 🎀 Ribbon ♡ ごほうびガチャ -->
+<section id="reward-gacha" style="margin:24px 0;padding:22px;border-radius:24px;background:linear-gradient(135deg,#fff0f7,#f5efff);border:2px solid #f4c4df;text-align:center;color:#76516d;">
+  <h2 style="margin-top:0;">🎀 ごほうびガチャ 🎀</h2>
+  <p>今日も勉強おつかれさま♡</p>
+  <div id="gacha-capsule" style="font-size:56px;margin:16px;">🎁</div>
+  <p id="gacha-result" aria-live="polite">ボタンを押してごほうびを決めよう！</p>
+  <button id="gacha-button" type="button" style="padding:12px 22px;border:0;border-radius:999px;background:#ef9bc8;color:white;font-weight:bold;font-size:16px;cursor:pointer;">
+    🎰 ガチャを回す！
+  </button>
+  <p style="font-size:12px;margin-bottom:0;">自分のペースで勉強して、ごほうびを楽しもう♡</p>
+</section>
+
+<script>
+(function () {
+  const rewards = [
+    "📺 アニメを1話楽しむ！",
+    "🍪 好きなお菓子タイム！",
+    "🎧 好きな音楽を聴こう！",
+    "🛋️ のんびり休憩タイム！",
+    "📚 好きな漫画を読もう！",
+    "🧸 自由時間を楽しもう！",
+    "💗 自分をいっぱい褒めよう！",
+    "🫖 好きな飲み物でひと休み！"
+  ];
+
+  const button = document.getElementById("gacha-button");
+  const result = document.getElementById("gacha-result");
+  const capsule = document.getElementById("gacha-capsule");
+
+  if (!button || !result || !capsule) return;
+
+  button.addEventListener("click", function () {
+    const reward = rewards[Math.floor(Math.random() * rewards.length)];
+    capsule.textContent = "💗";
+    result.textContent = "🎉 当たったごほうびは…… " + reward;
+    button.textContent = "💝 もう一度回す！";
+  });
+})();
+</script>
+
 </body>
 </html>
