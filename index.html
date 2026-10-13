@@ -850,20 +850,49 @@ body::before {
     🎰 ガチャを回す！
   </button>
   <p style="font-size:12px;margin-bottom:0;">自分のペースで勉強して、ごほうびを楽しもう♡</p>
+
+<div style="margin-top:18px;padding-top:14px;border-top:1px dashed #e8a8cc;">
+  <h3 style="margin-bottom:8px;">💝 マイごほうび設定</h3>
+  <p style="font-size:13px;">好きなごほうびを追加しよう！</p>
+  <input id="gacha-custom-input" type="text" maxlength="60" placeholder="例：好きなアニメを2話見る" style="box-sizing:border-box;width:100%;padding:12px;border:1px solid #e8a8cc;border-radius:12px;font-size:15px;">
+  <button id="gacha-add-button" type="button" style="margin-top:8px;padding:10px 18px;border:0;border-radius:999px;background:#d9c5fa;color:#604477;font-weight:bold;">＋ ごほうびを追加</button>
+  <ul id="gacha-custom-list" style="padding-left:20px;text-align:left;"></ul>
+</div>
+
 </section>
 
 <script>
 (function () {
-  const rewards = [
-    "📺 アニメを1話楽しむ！",
-    "🍪 好きなお菓子タイム！",
-    "🎧 好きな音楽を聴こう！",
-    "🛋️ のんびり休憩タイム！",
-    "📚 好きな漫画を読もう！",
-    "🧸 自由時間を楽しもう！",
-    "💗 自分をいっぱい褒めよう！",
-    "🫖 好きな飲み物でひと休み！"
-  ];
+  
+const defaultRewards = [
+  "📺 アニメを1話楽しむ！",
+  "🍪 好きなお菓子タイム！",
+  "🎧 好きな音楽を聴こう！",
+  "🛋️ のんびり休憩タイム！",
+  "📚 好きな漫画を読もう！",
+  "🧸 自由時間を楽しもう！",
+  "💗 自分をいっぱい褒めよう！",
+  "🫖 好きな飲み物でひと休み！"
+];
+
+let rewards = defaultRewards.slice();
+
+try {
+  const savedRewards = localStorage.getItem("ribbonCustomRewardsV1");
+  if (savedRewards !== null) {
+    const parsed = JSON.parse(savedRewards);
+    if (
+      Array.isArray(parsed) &&
+      parsed.length > 0 &&
+      parsed.every(item => typeof item === "string")
+    ) {
+      rewards = parsed;
+    }
+  }
+} catch (error) {
+  console.log("ごほうびリストを読み込めませんでした");
+}
+
 
   const button = document.getElementById("gacha-button");
   const result = document.getElementById("gacha-result");
@@ -877,6 +906,106 @@ body::before {
     result.textContent = "🎉 当たったごほうびは…… " + reward;
     button.textContent = "💝 もう一度回す！";
   });
+
+  const customInput = document.getElementById("gacha-custom-input");
+  const addButton = document.getElementById("gacha-add-button");
+  const customList = document.getElementById("gacha-custom-list");
+
+  function saveCustomRewards() {
+    try {
+      localStorage.setItem(
+        "ribbonCustomRewardsV1",
+        JSON.stringify(rewards)
+      );
+      return true;
+    } catch (error) {
+      alert("保存できなかったよ。もう一度試してね！");
+      return false;
+    }
+  }
+
+  function renderCustomRewards() {
+    customList.textContent = "";
+
+    rewards.forEach(function (reward, index) {
+      const item = document.createElement("li");
+      item.style.marginBottom = "8px";
+
+      const label = document.createElement("span");
+      label.textContent = reward + " ";
+
+      const deleteButton = document.createElement("button");
+      deleteButton.type = "button";
+      deleteButton.textContent = "🗑️ 削除";
+      deleteButton.style.marginLeft = "6px";
+      deleteButton.style.border = "0";
+      deleteButton.style.borderRadius = "12px";
+      deleteButton.style.padding = "6px 10px";
+      deleteButton.style.background = "#ffe0ec";
+
+      deleteButton.addEventListener("click", function () {
+        if (rewards.length <= 1) {
+          alert("ごほうびは最低1つ残してね！");
+          return;
+        }
+
+        if (!confirm("「" + reward + "」を削除する？")) return;
+
+        const removed = rewards.splice(index, 1)[0];
+
+        if (!saveCustomRewards()) {
+          rewards.splice(index, 0, removed);
+          return;
+        }
+
+        renderCustomRewards();
+      });
+
+      item.appendChild(label);
+      item.appendChild(deleteButton);
+      customList.appendChild(item);
+    });
+  }
+
+  addButton.addEventListener("click", function () {
+    const reward = customInput.value.trim();
+
+    if (!reward) {
+      alert("ごほうびを入力してね！");
+      return;
+    }
+
+    if (rewards.length >= 50) {
+      alert("ごほうびは50個までだよ！");
+      return;
+    }
+
+    if (rewards.includes(reward)) {
+      alert("そのごほうびはもう登録されているよ！");
+      return;
+    }
+
+    rewards.push(reward);
+
+    if (!saveCustomRewards()) {
+      rewards.pop();
+      return;
+    }
+
+    customInput.value = "";
+    renderCustomRewards();
+    alert("ごほうびを追加したよ！🎀");
+  });
+
+  customInput.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      addButton.click();
+    }
+  });
+
+  renderCustomRewards();
+
 })();
 </script>
 
